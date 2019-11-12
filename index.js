@@ -46,7 +46,7 @@ server.post('/api/login', (req, res) => {
             }
         })
         .catch(error => {
-            res.status(500).json(message: error.message);
+            res.status(500).json({message: error.message});
         });
 });
 
@@ -62,7 +62,7 @@ function restricted(req, res, next) {
             }
         })
         .catch(error => {
-            res.status(500).json(error);
+            res.status(500).json({message: error.message});
         });
 }
 server.get('/api/users', restricted, (req, res) => {
