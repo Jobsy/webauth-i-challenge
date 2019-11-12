@@ -13,64 +13,65 @@ server.use(express.json());
 server.use(cors());
 
 server.get('/', (req, res) => {
-    res.send("It's alive!");
+  res.send("It's alive!");
 });
 
 server.post('/api/register', (req, res) => {
-    let user = req.body;
-    const hash = bcrypt.hashSync(user.password, 11)
-    const user1 = {
-        username: req.body.username,
-        password: hash,
-    }
+  let user = req.body;
+  const hash = bcrypt.hashSync(user.password, 11)
+  const user1 = {
+    username: req.body.username,
+    password: hash,
+  }
 
-    Users.add(user1)
-        .then(saved => {
-            res.status(201).json(saved);
-        })
-        .catch(error => {
-            res.status(500).json("error while loging in: " + error);
-        });
+  Users.add(user1)
+    .then(saved => {
+      res.status(201).json(saved);
+    })
+    .catch(error => {
+      res.status(500).json("error while loging in: " + error);
+    });
 });
 
 server.post('/api/login', (req, res) => {
-    let { username, password } = req.body;
+  let { username, password } = req.body;
 
-    Users.findBy({ username })
-        .first()
-        .then(user => {
-            if (user && bcrypt.compareSync(password, user.password)) {
-                res.status(200).json({ message: `Welcome ${user.username}!` });
-            } else {
-                res.status(401).json({ message: 'Invalid Credentials' });
-            }
-        })
-        .catch(error => {
-            res.status(500).json({message: error.message});
-        });
+  Users.findBy({ username })
+    .first()
+    .then(user => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        res.status(200).json({ message: `Welcome ${user.username}!` });
+      } else {
+        res.status(401).json({ message: 'Invalid Credentials' });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ message: error.message });
+    });
 });
 
 function restricted(req, res, next) {
-    const { username, password } = req.headers
-    Users.findBy({ username })
-        .first()
-        .then(user => {
-            if (user && bcrypt.compareSync(password, user.password)) {
-                next()
-            } else {
-                res.status(401).json({ message: 'Invalid Credentials' });
-            }
-        })
-        .catch(error => {
-            res.status(500).json({message: error.message});
-        });
+  const { username, password } = req.headers
+  Users.findBy({ username })
+    .first()
+    .then(user => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        next()
+      } else {
+        res.status(401).json({ message: 'Invalid Credentials' });
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ message: error.message });
+    });
 }
+
 server.get('/api/users', restricted, (req, res) => {
-    Users.find()
-        .then(users => {
-            res.json(users);
-        })
-        .catch(err => res.send(err));
+  Users.find()
+    .then(users => {
+      res.json(users);
+    })
+    .catch(err => res.send(err));
 });
 
 const port = process.env.PORT || 5000;
