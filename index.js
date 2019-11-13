@@ -15,7 +15,7 @@ const sessionConfig = {
   secret: 'make it a little long and keep it safe!',
   cookie: {
     maxAge: 1000 * 60 * 60,
-    secure: false, 
+    secure: false,
     httpOnly: false,
   },
   resave: false,
