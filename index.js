@@ -5,7 +5,6 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const KnexSessionStore = require('connect-session-knex')(session);
 
-
 const db = require('./data/dbConfig.js');
 const Users = require('./users/users-model.js');
 
@@ -22,7 +21,7 @@ const sessionConfig = {
   resave: false,
   saveUninitialized: false,
   store: new KnexSessionStore({
-    knex: require('../database/dbConfig'),
+    knex: require('./data/dbConfig'),
     tablename: 'sessions',
     sidfieldname: 'sid',
     createtable: true,
@@ -33,12 +32,13 @@ const sessionConfig = {
 server.use(helmet());
 server.use(express.json());
 server.use(cors());
+server.use(session(sessionConfig));
 
 server.get('/', (req, res) => {
   res.send("It's alive!");
 });
 
-server.get('/logout', (req, res) => {
+server.get('/api/logout', (req, res) => {
   if (req.session) {
     req.session.destroy(err => {
       if (err) {
@@ -86,22 +86,6 @@ server.post('/api/login', (req, res) => {
       res.status(500).json({ message: error.message });
     });
 });
-
-// function restricted(req, res, next) {
-//   const { username, password } = req.headers
-//   Users.findBy({ username })
-//     .first()
-//     .then(user => {
-//       if (user && bcrypt.compareSync(password, user.password)) {
-//         next()
-//       } else {
-//         res.status(401).json({ message: 'Invalid Credentials' });
-//       }
-//     })
-//     .catch(error => {
-//       res.status(500).json({ message: error.message });
-//     });
-// }
 
 function restricted(req, res, next) {
   if (req.session && req.session.user) {
